@@ -38,9 +38,9 @@ public:
 	}
 
 	// adiciona uma aresta ao grafo de v1 à v2
-	void addAresta(int v1, int v2, int custo)
+	void addAresta(int v1, int v2, int custo, int n_passageiros, float duracao)
 	{
-		adj[v1].push_back(make_pair(v2, custo));
+		adj[v1].push_back(make_pair(v2, custo), n_passageiros, duracao);
 	}
 
 	// algoritmo de Dijkstra
@@ -132,26 +132,34 @@ int main(int argc, char ** argv){
 
   	ifs.close();
 
-  	Grafo g(linhas.size());
-	//vector<string> cidades (linhas.size());
-	string cidade;
+  	Grafo g(linhas.size()*2);
+	string cidade1, cidade2, distancia, n_passageiros, duracao;
 
 	while(!linhas.empty()){
 		tmp = linhas.back();
 		linhas.pop_back();
 
-		cidade = tmp.substr(0, tmp.find_first_of(";"));
+		cidade1 = tmp.substr(0, tmp.find_first_of(";"));
 		tmp.erase(0, tmp.find_first_of(";")+1);
-		//cidades.at(cidade);
 
-		cidade = tmp.substr(0, tmp.find_first_of(";"));
+		cidade2 = tmp.substr(0, tmp.find_first_of(";"));
 		tmp.erase(0, tmp.find_first_of(";")+1);
-		//cidades.at(cidade);
 
-		//g.addAresta(0, 1, 4);
-		//g.addAresta(0, 2, 2);
+		distancia = tmp.substr(0, tmp.find_first_of(";"));
+		tmp.erase(0, tmp.find_first_of(";")+1);
+
+		n_passageiros = tmp.substr(0, tmp.find_first_of(";"));
+		tmp.erase(0, tmp.find_first_of(";")+1);
+
+		duracao = tmp.substr(0, tmp.find_first_of(";"));
+		tmp.erase(0, tmp.find_first_of(";")+1);
+
+		g.addAresta(stoi(cidade1), stoi(cidade2), stoi(distancia), stoi(n_passageiros), stof(duracao));
+		g.addAresta(stoi(cidade2), stoi(cidade1), stoi(distancia), stoi(n_passageiros), stof(duracao));	
 	}
 
-	//cout << g.dijkstra(0, 4) << endl;
+	cout << g.dijkstra(1, 0) << endl;
+	cout << g.dijkstra(0, 1) << endl;
+	cout << g.dijkstra(1, 1) << endl;
 	return 0;
 }
