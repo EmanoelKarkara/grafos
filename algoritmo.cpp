@@ -176,7 +176,7 @@ int main(int argc, char ** argv){
 			cidades.push_back(cidade2);
 		}
 
-		int custo = (int) stoi(distancia) + stoi(n_passageiros) + stof(duracao);
+		int custo = (int) stoi(distancia) + stof(duracao) - stoi(n_passageiros);
 
 		g.addAresta(cidade1, cidade2, custo);
 		g.addAresta(cidade2, cidade1, custo);	
@@ -192,10 +192,10 @@ int main(int argc, char ** argv){
 
 	cout << "\nEscolha a cidade origem: ";
 	cin >> c1;
-	cout << "\nEscolha a cidade destino: ";
+	cout << "Escolha a cidade destino: ";
 	cin >> c2;
 
-	cout << "A custo entre essas duas cidades é: " << g.dijkstra(c1, c2) << endl << endl;
+	cout << "\nA custo entre essas duas cidades é: " << g.dijkstra(c1, c2) << endl << endl;
 
 	return 0;
 }
