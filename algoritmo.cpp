@@ -115,6 +115,13 @@ public:
 	}
 };
 
+bool contem(vector<int> v, int cidade){
+	for(int i = 0; i < v.size(); i++){
+		if(v[i] == cidade) return true;
+	}
+	return false;
+}
+
 int main(int argc, char ** argv){
 
 	if(argc != 2){
@@ -125,6 +132,7 @@ int main(int argc, char ** argv){
 
 	ifstream ifs (argv[1], ifstream::in);
 	list<string> linhas;
+	vector<int> cidades;
 	string tmp;
 
 	//Lendo as linhas do arquivo
@@ -138,16 +146,17 @@ int main(int argc, char ** argv){
   	ifs.close();
 
   	Grafo g(linhas.size()*2);
-	string cidade1, cidade2, distancia, n_passageiros, duracao;
+	string distancia, n_passageiros, duracao;
+	int cidade1, cidade2;
 
 	while(!linhas.empty()){
 		tmp = linhas.back();
 		linhas.pop_back();
 
-		cidade1 = tmp.substr(0, tmp.find_first_of(";"));
+		cidade1 = stoi(tmp.substr(0, tmp.find_first_of(";")));
 		tmp.erase(0, tmp.find_first_of(";")+1);
 
-		cidade2 = tmp.substr(0, tmp.find_first_of(";"));
+		cidade2 = stoi(tmp.substr(0, tmp.find_first_of(";")));
 		tmp.erase(0, tmp.find_first_of(";")+1);
 
 		distancia = tmp.substr(0, tmp.find_first_of(";"));
@@ -159,15 +168,34 @@ int main(int argc, char ** argv){
 		duracao = tmp.substr(0, tmp.find_first_of(";"));
 		tmp.erase(0, tmp.find_first_of(";")+1);
 
+		if(!contem(cidades, cidade1)){
+			cidades.push_back(cidade1);
+		}
+
+		if(!contem(cidades, cidade2)){
+			cidades.push_back(cidade2);
+		}
+
 		int custo = (int) stoi(distancia) + stoi(n_passageiros) + stof(duracao);
 
-		g.addAresta(stoi(cidade1), stoi(cidade2), custo);
-		g.addAresta(stoi(cidade2), stoi(cidade1), custo);	
+		g.addAresta(cidade1, cidade2, custo);
+		g.addAresta(cidade2, cidade1, custo);	
 	}
 
-	cout << g.dijkstra(1, 4) << endl;
-	cout << g.dijkstra(1, 5) << endl;
-	cout << g.dijkstra(1, 1) << endl;
+	cout << "\nTemos as seguintes cidades:" << endl;
+
+	for(int i = cidades.size()-1; i >= 0; i--){
+		cout << cidades[i] << endl;
+	}
+
+	int c1, c2;
+
+	cout << "\nEscolha a cidade origem: ";
+	cin >> c1;
+	cout << "\nEscolha a cidade destino: ";
+	cin >> c2;
+
+	cout << "A custo entre essas duas cidades é: " << g.dijkstra(c1, c2) << endl << endl;
 
 	return 0;
 }
