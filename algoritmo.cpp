@@ -1,6 +1,11 @@
 /*
-* Implementação de uma modificação do algoritmo de Dijkstra
-* baseado na implementação de Marcos Castro de Souza (https://github.com/marcoscastro).
+* Usando algoritmo de Dijkstra implementado por
+* Marcos Castro de Souza (https://github.com/marcoscastro)
+* para calcular o custo da rota mais curta entre duas cidades,
+* onde o custo entre uma cidade e outra é dado por uma combinação
+* linar dos valores da distância entre as cidades, do número médio 
+* de passageiros que fazem aquela rota e do tempo de duração de viagem.
+*
 * Desenvolvido por Emanoel Dantas e Felipe Gilberto
 */
 
@@ -22,7 +27,6 @@ private:
 
 	// ponteiro para um array contendo as listas de adjacências
 	list<pair<int, int> > * adj;
-	list<pair<int, float> > * adj_complementar;
 
 public:
 
@@ -36,14 +40,12 @@ public:
 			onde cada pair é formado pelo vértice destino e o custo
 		*/
 		adj = new list<pair<int, int> >[V];
-		adj_complementar = new list<pair<int, float> >[V];
 	}
 
 	// adiciona uma aresta ao grafo de v1 à v2
-	void addAresta(int v1, int v2, int custo, int n_passageiros, float duracao)
+	void addAresta(int v1, int v2, int custo)
 	{
 		adj[v1].push_back(make_pair(v2, custo));
-		adj_complementar[v1].push_back(make_pair(n_passageiros, duracao));
 	}
 
 	// algoritmo de Dijkstra
@@ -89,16 +91,13 @@ public:
 				visitados[u] = true;
 
 				list<pair<int, int> >::iterator it;
-				list<pair<int, float> >::iterator it_complementar;
 
 				// percorre os vértices "v" adjacentes de "u"
-				for(it = adj[u].begin(), it_complementar = adj_complementar[u].begin(); it != adj[u].end(); it++, it_complementar++)
+				for(it = adj[u].begin(); it != adj[u].end(); it++)
 				{
 					// obtém o vértice adjacente e o custo da aresta
 					int v = it->first;
 					int custo_aresta = it->second;
-					int n_passageiros = it_complementar->first;
-					float duracao = it_complementar->first;
 
 					// relaxamento (u, v)
 					if(dist[v] > (dist[u] + custo_aresta))
@@ -160,12 +159,15 @@ int main(int argc, char ** argv){
 		duracao = tmp.substr(0, tmp.find_first_of(";"));
 		tmp.erase(0, tmp.find_first_of(";")+1);
 
-		g.addAresta(stoi(cidade1), stoi(cidade2), stoi(distancia), stoi(n_passageiros), stof(duracao));
-		g.addAresta(stoi(cidade2), stoi(cidade1), stoi(distancia), stoi(n_passageiros), stof(duracao));	
+		int custo = (int) stoi(distancia) + stoi(n_passageiros) + stof(duracao);
+
+		g.addAresta(stoi(cidade1), stoi(cidade2), custo);
+		g.addAresta(stoi(cidade2), stoi(cidade1), custo);	
 	}
 
-	cout << g.dijkstra(1, 0) << endl;
-	cout << g.dijkstra(0, 1) << endl;
+	cout << g.dijkstra(1, 4) << endl;
+	cout << g.dijkstra(1, 5) << endl;
 	cout << g.dijkstra(1, 1) << endl;
+
 	return 0;
 }
