@@ -22,6 +22,7 @@ private:
 
 	// ponteiro para um array contendo as listas de adjacências
 	list<pair<int, int> > * adj;
+	list<pair<int, float> > * adj_complementar;
 
 public:
 
@@ -35,12 +36,14 @@ public:
 			onde cada pair é formado pelo vértice destino e o custo
 		*/
 		adj = new list<pair<int, int> >[V];
+		adj_complementar = new list<pair<int, float> >[V];
 	}
 
 	// adiciona uma aresta ao grafo de v1 à v2
 	void addAresta(int v1, int v2, int custo, int n_passageiros, float duracao)
 	{
-		adj[v1].push_back(make_pair(v2, custo), n_passageiros, duracao);
+		adj[v1].push_back(make_pair(v2, custo));
+		adj_complementar[v1].push_back(make_pair(n_passageiros, duracao));
 	}
 
 	// algoritmo de Dijkstra
@@ -86,13 +89,16 @@ public:
 				visitados[u] = true;
 
 				list<pair<int, int> >::iterator it;
+				list<pair<int, float> >::iterator it_complementar;
 
 				// percorre os vértices "v" adjacentes de "u"
-				for(it = adj[u].begin(); it != adj[u].end(); it++)
+				for(it = adj[u].begin(), it_complementar = adj_complementar[u].begin(); it != adj[u].end(); it++, it_complementar++)
 				{
 					// obtém o vértice adjacente e o custo da aresta
 					int v = it->first;
 					int custo_aresta = it->second;
+					int n_passageiros = it_complementar->first;
+					float duracao = it_complementar->first;
 
 					// relaxamento (u, v)
 					if(dist[v] > (dist[u] + custo_aresta))
