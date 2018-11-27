@@ -1,120 +1,25 @@
 /*
-* Usando algoritmo de Dijkstra implementado por
-* Marcos Castro de Souza (https://github.com/marcoscastro)
-* para calcular o custo da rota mais curta entre duas cidades,
-* onde o custo entre uma cidade e outra é dado por uma combinação
-* linar dos valores da distância entre as cidades, do número médio 
-* de passageiros que fazem aquela rota e do tempo de duração de viagem.
-*
-* Desenvolvido por Emanoel Dantas e Felipe Gilberto
+Algoritmo que calcula o custo da rota mais vantajosa entre duas cidades, 
+onde o custo entre uma cidade e outra é dado por uma combinação linar dos 
+valores da distância entre as cidades, do número médio de passageiros que 
+fazem aquela rota e do tempo de duração de viagem. O algoritmo baseou-se
+na implementação do algoritmo de Dijkstra de Marcos Castro de Souza 
+(https://github.com/marcoscastro).
+
+Desenvolvido por Emanoel Dantas e Felipe Gilberto
 */
 
 #include <iostream>		//cout
 #include <fstream>      //ifstream
 #include <string>		//string
-#include <list>
-#include <queue>
-#include <set>
+#include <vector>		//vector
+#include <list>			//list
+#include <queue>		//priority_queue
 
-#define INFINITO 10000000
 
 using namespace std;
 
-class Grafo
-{
-private:
-	int V; // número de vértices
-
-	// ponteiro para um array contendo as listas de adjacências
-	list<pair<int, int> > * adj;
-
-public:
-
-	// construtor
-	Grafo(int V)
-	{
-		this->V = V; // atribui o número de vértices
-
-		/*
-			cria as listas onde cada lista é uma lista de pairs
-			onde cada pair é formado pelo vértice destino e o custo
-		*/
-		adj = new list<pair<int, int> >[V];
-	}
-
-	// adiciona uma aresta ao grafo de v1 à v2
-	void addAresta(int v1, int v2, int custo)
-	{
-		adj[v1].push_back(make_pair(v2, custo));
-	}
-
-	// algoritmo de Dijkstra
-	int dijkstra(int orig, int dest)
-	{
-		// vetor de distâncias
-		int dist[V];
-
-		/*
-		   vetor de visitados serve para caso o vértice já tenha sido
-		   expandido (visitado), não expandir mais
-		*/
-		int visitados[V];
-
-		// fila de prioridades de pair (distancia, vértice)
-		priority_queue < pair<int, int>,
-					   vector<pair<int, int> >, greater<pair<int, int> > > pq;
-
-		// inicia o vetor de distâncias e visitados
-		for(int i = 0; i < V; i++)
-		{
-			dist[i] = INFINITO;
-			visitados[i] = false;
-		}
-
-		// a distância de orig para orig é 0
-		dist[orig] = 0;
-
-		// insere na fila
-		pq.push(make_pair(dist[orig], orig));
-
-		// loop do algoritmo
-		while(!pq.empty())
-		{
-			pair<int, int> p = pq.top(); // extrai o pair do topo
-			int u = p.second; // obtém o vértice do pair
-			pq.pop(); // remove da fila
-
-			// verifica se o vértice não foi expandido
-			if(visitados[u] == false)
-			{
-				// marca como visitado
-				visitados[u] = true;
-
-				list<pair<int, int> >::iterator it;
-
-				// percorre os vértices "v" adjacentes de "u"
-				for(it = adj[u].begin(); it != adj[u].end(); it++)
-				{
-					// obtém o vértice adjacente e o custo da aresta
-					int v = it->first;
-					int custo_aresta = it->second;
-
-					// relaxamento (u, v)
-					if(dist[v] > (dist[u] + custo_aresta))
-					{
-						// atualiza a distância de "v" e insere na fila
-						dist[v] = dist[u] + custo_aresta;
-						pq.push(make_pair(dist[v], v));
-					}
-				}
-			}
-		}
-
-		// retorna a distância mínima até o destino
-		return dist[dest];
-	}
-};
-
+//Verifica se uma cidade está contida na lista de cidades
 bool contem(vector<int> v, int cidade){
 	for(int i = 0; i < v.size(); i++){
 		if(v[i] == cidade) return true;
@@ -130,7 +35,9 @@ int main(int argc, char ** argv){
 		return 1;
 	} 
 
+	//Abre o arquivo passado por parâmetro
 	ifstream ifs (argv[1], ifstream::in);
+
 	list<string> linhas;
 	vector<int> cidades;
 	string tmp;
@@ -143,9 +50,12 @@ int main(int argc, char ** argv){
 		}
   	}	
 
-  	ifs.close();
+  	ifs.close(); //Fecha o arquivo
 
-  	Grafo g(linhas.size()*2);
+  	int n_vertices = linhas.size()*2;
+  	//Lista de cidades adjacentes para cada uma das cidades
+  	list< pair<int, int> > * adjacentes = new list< pair<int, int> >[n_vertices];
+	
 	string distancia, n_passageiros, duracao;
 	int cidade1, cidade2;
 
@@ -153,6 +63,7 @@ int main(int argc, char ** argv){
 		tmp = linhas.back();
 		linhas.pop_back();
 
+		//Lendo os valores de cada linha lida do arquivo
 		cidade1 = stoi(tmp.substr(0, tmp.find_first_of(";")));
 		tmp.erase(0, tmp.find_first_of(";")+1);
 
@@ -168,34 +79,79 @@ int main(int argc, char ** argv){
 		duracao = tmp.substr(0, tmp.find_first_of(";"));
 		tmp.erase(0, tmp.find_first_of(";")+1);
 
+		//Adiciona cidade1 na lista de cidades
 		if(!contem(cidades, cidade1)){
 			cidades.push_back(cidade1);
 		}
 
+		//Adiciona cidade2 na lista de cidades
 		if(!contem(cidades, cidade2)){
 			cidades.push_back(cidade2);
 		}
 
+		//Combinação linear da distância, tempo de duração e número de passageiros no cálculo do custo
 		int custo = (int) stoi(distancia) + stof(duracao) - stoi(n_passageiros);
 
-		g.addAresta(cidade1, cidade2, custo);
-		g.addAresta(cidade2, cidade1, custo);	
+		//Cria arco nos dois sentidos já que o grafo é não digigido
+		adjacentes[cidade1].push_back(make_pair(cidade2, custo));
+		adjacentes[cidade2].push_back(make_pair(cidade1, custo));
+
 	}
 
 	cout << "\nTemos as seguintes cidades:" << endl;
 
+	//Exibe a lista de cidades
 	for(int i = cidades.size()-1; i >= 0; i--){
 		cout << cidades[i] << endl;
 	}
 
-	int c1, c2;
+	int origem, destino;
 
 	cout << "\nEscolha a cidade origem: ";
-	cin >> c1;
+	cin >> origem;
 	cout << "Escolha a cidade destino: ";
-	cin >> c2;
+	cin >> destino;
 
-	cout << "\nA custo entre essas duas cidades é: " << g.dijkstra(c1, c2) << endl << endl;
+	int distancias[n_vertices];
+	bool visitados[n_vertices];
+	priority_queue < pair<int, int>, vector<pair<int, int> >, greater<pair<int, int> > > pq;
+
+	//Inicializando
+	for(int i = 0; i < n_vertices; i++)
+	{
+		distancias[i] = 1000000;
+		visitados[i] = false;
+	}
+
+	distancias[origem] = 0; //Distância da origem para a origem
+	pq.push(make_pair(distancias[origem], origem));
+
+	while(!pq.empty())
+	{
+		pair<int, int> p = pq.top(); 
+		int u = p.second; 
+		pq.pop(); 
+
+		if(visitados[u] == false)
+		{
+			visitados[u] = true;
+			list<pair<int, int> >::iterator it;
+
+			for(it = adjacentes[u].begin(); it != adjacentes[u].end(); it++)
+			{
+				int v = it->first;
+				int custo = it->second;
+
+				if(distancias[v] > (distancias[u] + custo))
+				{
+					distancias[v] = distancias[u] + custo;
+					pq.push(make_pair(distancias[v], v));
+				}
+			}
+		}
+	}
+
+	cout << "\nA custo entre essas duas cidades é: " << distancias[destino] << endl << endl;
 
 	return 0;
 }
