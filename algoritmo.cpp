@@ -1,10 +1,9 @@
 /*
 Algoritmo que calcula o custo da rota mais vantajosa entre duas cidades, 
 onde o custo entre uma cidade e outra é dado por uma combinação linar dos 
-valores da distância entre as cidades, do número médio de passageiros que 
-fazem aquela rota e do tempo de duração de viagem. O algoritmo baseou-se
-na implementação do algoritmo de Dijkstra de Marcos Castro de Souza 
-(https://github.com/marcoscastro).
+valores da distância entre as cidades e do número médio de passageiros que 
+fazem aquela rota. O algoritmo baseou-se na implementação do algoritmo de 
+Dijkstra de Marcos Castro de Souza (https://github.com/marcoscastro).
 
 Desenvolvido por Emanoel Dantas e Felipe Gilberto
 */
@@ -56,7 +55,7 @@ int main(int argc, char ** argv){
   	//Lista de cidades adjacentes para cada uma das cidades
   	list< pair<int, int> > * adjacentes = new list< pair<int, int> >[n_vertices];
 	
-	string distancia, n_passageiros, duracao;
+	string distancia, n_passageiros;
 	int cidade1, cidade2;
 
 	while(!linhas.empty()){
@@ -73,11 +72,7 @@ int main(int argc, char ** argv){
 		distancia = tmp.substr(0, tmp.find_first_of(";"));
 		tmp.erase(0, tmp.find_first_of(";")+1);
 
-		n_passageiros = tmp.substr(0, tmp.find_first_of(";"));
-		tmp.erase(0, tmp.find_first_of(";")+1);
-
-		duracao = tmp.substr(0, tmp.find_first_of(";"));
-		tmp.erase(0, tmp.find_first_of(";")+1);
+		n_passageiros = tmp;
 
 		//Adiciona cidade1 na lista de cidades
 		if(!contem(cidades, cidade1)){
@@ -89,8 +84,8 @@ int main(int argc, char ** argv){
 			cidades.push_back(cidade2);
 		}
 
-		//Combinação linear da distância, tempo de duração e número de passageiros no cálculo do custo
-		int custo = (int) stoi(distancia) + stof(duracao) - stoi(n_passageiros);
+		//Combinação linear da distância e número de passageiros no cálculo do custo
+		int custo = (int) stoi(distancia) - stoi(n_passageiros);
 
 		//Cria arco nos dois sentidos já que o grafo é não digigido
 		adjacentes[cidade1].push_back(make_pair(cidade2, custo));
